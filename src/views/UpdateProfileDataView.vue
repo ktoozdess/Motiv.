@@ -6,7 +6,7 @@
             class="form-control"
             @change="chooseFile"
             >
-            <button @click="handleclick" class="btn" >Upload</button>
+            <button @click="handleclick" class="btn btn-secondary" >Upload</button>
             <br>
             <input type="text" id="displayName" placeholder="Name" v-model="UserdisplayName" class="form-control" >
             <button class="btn btn-secondary" @click="profileUpdater">Update!</button>
@@ -44,6 +44,8 @@ const UserdisplayName = refvue("")
 
 
 const profileUpdater = async() => {
+    if (UserdisplayName.value !== ''){
+
         try {
             await setDoc(doc(db, "users", auth.currentUser.uid), {
                 username: UserdisplayName.value,
@@ -62,16 +64,24 @@ const profileUpdater = async() => {
         } catch (e) {
         console.error("Error adding document: ", e);
         }
+
+    }else{
+        alert('Enter Your Name')
+    }
 }
 
 
 let file = {};
+console.log(Object.keys(file).length);
 
 const chooseFile = (e) => {
     file = e.target.files[0]
+    console.log(file.name);
 }
 
 const handleclick = () => {
+    if(file.name !== undefined){
+        console.log(file.value);
     const storageRef  = ref(storage, 'users/' + user.uid + '/profile.jpg');
     uploadBytes(storageRef, file).then(() => {
     console.log('Uploaded a blob or file!');
@@ -101,6 +111,10 @@ getDownloadURL(ref(storage, 'users/' + user.uid + '/profile.jpg'))
         console.log(error);
         });
     })
+
+}else{
+    alert('Choose a Photo')
+}
 }
 
 </script>
