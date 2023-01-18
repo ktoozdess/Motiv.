@@ -183,6 +183,9 @@ this.savedquote = this.savedquotes.find((savedquote) => savedquote.docId == this
     }
     .post-rightside-text{
         margin: 0 25px;
+        p{
+            max-width: 340px;
+        }
     }
     .material-symbols-outlined {
     font-size: 36px;
