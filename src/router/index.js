@@ -7,8 +7,19 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView,
-
+    meta:{
+      requiresAuth: true,
+    }
   },
+  {
+    path: '/quotes',
+    name: 'quotes',
+    component: () => import(/* webpackChunkName: "about" */ '../views/QuotesView.vue'),
+    meta:{
+      requiresAuth: true,
+    }
+  },
+
   {
     path: '/about',
     name: 'about',
@@ -49,9 +60,25 @@ const routes = [
     }
   },
   {
-    path: '/createpost',
+    path: '/quote/:id',
+    name: 'QuoteView',
+    component: () => import(/* webpackChunkName: "about" */ '../views/QuoteView.vue'),
+    meta:{
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/createpostphoto',
     name: 'CreatePostView',
     component: () => import(/* webpackChunkName: "about" */ '../views/CreatePostView.vue'),
+    meta:{
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/createpostquote',
+    name: 'CreateQuoteView',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CreateQuoteView.vue'),
     meta:{
       requiresAuth: true,
     }

@@ -8,7 +8,25 @@
             <router-link class="nav-link" to="/updateprofile">Update profile</router-link>
         </div>
         <div class="my-posts-wrapper animate__animated animate__fadeIn animate__delay-1s" >
-            <h4><a class="nav-link"  @click="hrefCreatedPosts">Created Posts</a> <a  class="nav-link"  @click="hrefSavedPosts">Saved Posts</a></h4>
+            <h4>
+            <div class="dropdown">
+    <a class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Created</a>
+  <ul class="dropdown-menu">
+    <li> <a class="nav-link dropdown-item"  @click="hrefCreatedPosts">Created Posts</a></li>
+    <li><a class="nav-link dropdown-item"  @click="hrefCreatedQuotes">Created Quotes</a></li>
+  </ul>
+</div>
+<div class="dropdown">
+    <a class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Saved</a>
+  <ul class="dropdown-menu">
+    <li><a class="nav-link dropdown-item"  @click="hrefSavedPosts">Saved Posts</a></li>
+    <li> <a class="nav-link dropdown-item"  @click="hrefSavedQuotes">Saved Quotes</a></li>
+  </ul>
+</div>
+</h4>
+            <div class="created-quotes-list-wrapper animate__animated animate__fadeIn">
+            <CreatedQuotesItem/>
+            </div>
             <div class="created-posts-list-wrapper animate__animated animate__fadeIn">
           <router-link v-bind:key="post.id"
           :posts="posts"
@@ -26,22 +44,23 @@
             <img :src="post.img" alt="">
           </router-link >
         </div>
-
+        <div class="saved-quotes-list-wrapper animate__animated animate__fadeIn">
+            <SavedQuotesItem/>
+        </div>
         </div>
     </div>
 </template>
 <script>
 import { getAuth } from "firebase/auth";
 import { db } from "@/firebase/firebase";
-// import CreatedPostsFeedItem from "../components/CreatedPostsFeedItem.vue";
-// import SavedPostsFeedItem from '../components/SavedPostsFeedItem.vue'
 import { collection,getDocs, query, orderBy } from "firebase/firestore";
+import SavedQuotesItem from "@/components/SavedQuotesItem.vue";
+import CreatedQuotesItem from "@/components/CreatedQuotesItem.vue";
 
 export default{
     name: 'FeedView',
     components:{
-        // CreatedPostsFeedItem,
-        // SavedPostsFeedItem
+        SavedQuotesItem, CreatedQuotesItem
     },
     data(){
         const auth = getAuth();
@@ -65,6 +84,8 @@ export default{
 
     },
     mounted(){
+        document.querySelector('.created-quotes-list-wrapper').classList.add('hidden');
+        document.querySelector('.saved-quotes-list-wrapper').classList.add('hidden');
         document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
         this.displayNamePrint = 'hello'
     },
@@ -96,6 +117,9 @@ querySnapshot.forEach((doc) => {
     }
     libsavedposts.push(savedpost)
     });
+
+
+
     const querySnapshotss = await getDocs(query(collection(db, "users")));
     let libusers = []
     querySnapshotss.forEach((doc) => {
@@ -119,13 +143,29 @@ querySnapshot.forEach((doc) => {
             })
             );
     },
-        hrefCreatedPosts(){
-            document.querySelector('.created-posts-list-wrapper').classList.remove('hidden');
+        hrefCreatedQuotes(){
+            document.querySelector('.created-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.saved-quotes-list-wrapper').classList.add('hidden');
             document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.created-quotes-list-wrapper').classList.remove('hidden');
+        },
+        hrefCreatedPosts(){
+            document.querySelector('.created-quotes-list-wrapper').classList.add('hidden');
+            document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.created-posts-list-wrapper').classList.remove('hidden');
+            document.querySelector('.saved-quotes-list-wrapper').classList.add('hidden');
         },
         hrefSavedPosts(){
+            document.querySelector('.created-quotes-list-wrapper').classList.add('hidden');
             document.querySelector('.created-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.saved-quotes-list-wrapper').classList.add('hidden');
             document.querySelector('.saved-posts-list-wrapper').classList.remove('hidden');
+        },
+        hrefSavedQuotes(){
+            document.querySelector('.created-quotes-list-wrapper').classList.add('hidden');
+            document.querySelector('.created-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
+            document.querySelector('.saved-quotes-list-wrapper').classList.remove('hidden');
         }
     }
 
@@ -159,6 +199,7 @@ querySnapshot.forEach((doc) => {
         }
         a:hover{
             color: black;
+            background-color: none;
         }
     }
     .my-posts-wrapper{
@@ -169,14 +210,20 @@ querySnapshot.forEach((doc) => {
         flex-wrap: nowrap;
         flex-direction: row;
         justify-content: center;
+        .dropdown-item{
+            margin: 0px;
+        }
+        .dropdown-menu{
+            a:hover{
+            color: #FFF;
+        }
+        }
         a{
             color: #8409F9;
             margin: 0 18px;
             padding: 10px;
         }
-        a:hover{
-            color: black;
-        }
+
     }
     }
     .created-posts-list-wrapper{

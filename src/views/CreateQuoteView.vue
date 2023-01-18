@@ -1,15 +1,11 @@
 <template>
     <div class="create-post-wrapper animate__animated animate__fadeIn ">
-        <h3>Create New Post</h3>
+        <h3>Create New Quote Post</h3>
         <div class="form-wrapper">
-            <div class="form-file">
-                <input class="form-control" type="file"
-                    @change="chooseFilePost"
-                >
-            </div>
             <div class="form-post-txt-data">
-                <input type="text" id="title" placeholder="Title" v-model="Posttitle" class="form-control">
-                <input type="text" id="descr" placeholder="Descriptions" v-model="Postdescr" class="form-control">
+                <input type="text" id="title" placeholder="Quote" v-model="Postquotequote" class="form-control">
+                <input type="text" id="quoteauthor" placeholder="Author of Quote" v-model="Postquoteauthor" class="form-control">
+                <input type="text" id="descr" placeholder="Descriptions" v-model="Postquotedescr" class="form-control">
                 <button @click="CreatePostSubmit" class="btn btn-secondary">Save!</button>
             </div>
         </div>
@@ -17,51 +13,35 @@
 </template>
 <script setup>
 import { collection, addDoc } from "firebase/firestore";
-import { db, storage } from "@/firebase/firebase";
 import { getAuth } from "firebase/auth";
-import { ref , uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from "@/firebase/firebase";
 import { ref as refvue } from "vue";
-import { v4 as uuidv4 } from 'uuid';
 import router from "@/router";
 
-const Posttitle = refvue("")
-const Postdescr = refvue("")
+const Postquotequote = refvue("")
+const Postquoteauthor = refvue("")
+const Postquotedescr = refvue("")
 
-
-
-let file = {};
-
-const chooseFilePost = (e) => {
-        file = e.target.files[0]
-    }
 
 const CreatePostSubmit = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
-    const postId = uuidv4();
-    const storageRef  = ref(storage, 'posts/' + postId + '/post.jpg');
-    uploadBytes(storageRef, file).then(() => {
-        console.log('Uploaded a blob or file!');
-        getDownloadURL(ref(storage, 'posts/' + postId + '/post.jpg'))
-    .then(async (url) => {
+
             try {
-        const docRef = await addDoc(collection(db, "posts"), {
-        title: Posttitle.value,
-        descr: Postdescr.value,
-        author: user.displayName,
-        UserId: user.uid,
-        img: url,
-        imgId: postId,
-        timestamp: -(+new Date())
+        const docRef = await addDoc(collection(db, "quotes"), {
+            quote: Postquotequote.value,
+            descr: Postquotedescr.value,
+            author: user.displayName,
+            quoteauthor: Postquoteauthor.value,
+            UserId: user.uid,
+            timestamp: -(+new Date())
         });
         console.log("Document written with ID: ", docRef.id);
-        router.push("/")
+        router.push("/quotes")
         } catch (e) {
         console.error("Error adding document: ", e);
         }
-    })
-    });
-}
+    }
 
 </script>
 <style lang="scss" scoped>
@@ -92,14 +72,6 @@ const CreatePostSubmit = async () => {
         .btn:hover{
             background-color: #FFF;
             color: #8409F9;
-        }
-        .form-file{
-            width: 50%;
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-            justify-content: center;
-            align-content: center;
         }
         .form-post-txt-data{
             width: 50%;

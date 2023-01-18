@@ -6,7 +6,16 @@
     <div class="righthead">
       <div class="links">
     <router-link  v-if="isLoggedIn" to="/search"><img src="./assets/search3.png" alt=""></router-link>
-    <router-link  v-if="isLoggedIn" to="/createpost"><img src="./assets/add2.png" alt=""></router-link>
+    <!-- <router-link  v-if="isLoggedIn" to="/createpostphoto"><img src="./assets/add2.png" alt=""></router-link> -->
+    <li style="width: 48px; height: 48px;" class="nav-item dropdown">
+          <a v-if="isLoggedIn" class="nav-link dropdown-toggle"  href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="./assets/add2.png" alt="">
+                </a>
+    <ul class="dropdown-menu animate__animated animate__fadeIn animate__faster">
+      <li><router-link class="dropdown-item" to="/createpostphoto">Create Photo Post</router-link></li>
+      <li><router-link class="dropdown-item" to="/createpostquote">Create Quote Post</router-link></li>
+    </ul>
+  </li>
       </div>
 
     <li style="width: 48px; height: 48px;" class="nav-item dropdown">
@@ -15,6 +24,7 @@
       </a>
     <ul class="dropdown-menu animate__animated animate__fadeIn animate__faster">
       <li><router-link class="dropdown-item" to="/">Home</router-link></li>
+      <li><router-link class="dropdown-item" to="/quotes">Quotes</router-link></li>
       <li><router-link class="dropdown-item" to="/about">About Motiv.</router-link></li>
       <li><router-link class="dropdown-item"  v-if="isLoggedIn == false" to="/signin">Sign In</router-link></li>
       <li><router-link class="dropdown-item"  v-if="isLoggedIn" to="/feed">Feed</router-link></li>
@@ -90,16 +100,24 @@ import 'animate.css';
     img{
       width: 42px;
     }
+    .dropdown-item{
+        margin: 0px;
+        }
+
+   li{
     a{
-   text-decoration: none;
-   color: #8409F9;
-   margin: 0 5px;
+      color: #8409F9;
+    }
+    a:hover{
+      color: #FFF;
+    }
+  }
    span{
     font-size: 48px;
    }
     }
   }
-}
+
 .lefthead{
   margin: auto 0;
   p{
@@ -125,6 +143,7 @@ import 'animate.css';
       color: #8409F9;
     }
     a:hover{
+      color: #FFF;
       background-color: #0f0f0f;
     }
   }
@@ -132,9 +151,9 @@ import 'animate.css';
 .display-name{
   color: #FFF;
 }
-ul.dropdown-menu.show{
-  transform: translate3d(-1px, 0px, 0px)!important;
-}
+// ul.dropdown-menu.show{
+//   transform: translate3d(-1px, 0px, 0px)!important;
+// }
 .dropdown-toggle::after {
     display:none;
 }

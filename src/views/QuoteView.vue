@@ -1,5 +1,5 @@
 <template>
-    <div class="post-view-wrapper animate__animated animate__fadeIn">
+      <div class="post-view-wrapper animate__animated animate__fadeIn">
         <div id="suredelete" class="suredelete animate__animated animate__fadeIn">
                     <p>Delete this post?</p>
                     <a @click="canceldelete" class="btn btn-cancel">Cancel</a>
@@ -7,7 +7,7 @@
                 </div>
         <div class="post">
             <div class="post-leftside-image animate__animated animate__fadeIn animate__delay-1s">
-                <img :src="post.img" alt="">
+                <p>{{quote.quote}}</p>
             </div>
             <div class="post-rightside-text animate__animated animate__fadeIn animate__delay-1s">
                 <div class="hrefs-wrap">
@@ -15,9 +15,9 @@
           <a   class="nav-link dropdown-toggle"  role="button" style="margin-left: 0px;cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="material-symbols-outlined">share</span>
                 </a>
-                <a  v-if="post.UserId == user.uid"  style="cursor: pointer;"  @click="sureDeletePost"><span class="material-symbols-outlined">delete</span></a>
-                <a  class="savepost animate__animated animate__pulse" style="cursor: pointer;" @click="savePost" v-if="this.savedpost == undefined" ><span class="material-symbols-outlined">bookmark</span></a>
-                <a  class="delpost animate__animated animate__pulse"  style="cursor: pointer;"  @click="deleteFromSaved" v-if="this.savedpost != undefined" ><span class="material-symbols-outlined">bookmark_remove</span></a>
+                <a  v-if="quote.UserId == user.uid"  style="cursor: pointer;"  @click="sureDeletePost"><span class="material-symbols-outlined">delete</span></a>
+                <a  class="savepost animate__animated animate__pulse" style="cursor: pointer;" @click="savePost" v-if="this.savedquote == undefined" ><span class="material-symbols-outlined">bookmark</span></a>
+                <a  class="delpost animate__animated animate__pulse"  style="cursor: pointer;"  @click="deleteFromSaved" v-if="this.savedquote != undefined" ><span class="material-symbols-outlined">bookmark_remove</span></a>
                 <div class="dropdown-menu dropdown-menu-post animate__animated animate__fadeIn">
                 <p class="nav-link">Share</p>
                 <!-- <a @click="facebookClick" href="#"><img src="../assets/facebook.svg" alt=""></a> -->
@@ -26,36 +26,32 @@
             </div>
         </li>
             </div>
-            <p>{{post.title}}</p>
-            <p>{{post.descr}}</p>
-            <!-- <p>Author: {{post.author}}</p> -->
+            <p>{{quote.quoteauthor}}</p>
+            <p>{{quote.descr}}</p>
         </div>
         </div>
     </div>
 </template>
-<script >
+<script>
 import {  deleteDoc,doc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import router from "@/router";
 import { getAuth } from "firebase/auth";
-import { getStorage, ref, deleteObject } from "firebase/storage";
 import { collection,getDocs, addDoc } from "firebase/firestore";
 
 
 export default {
-  name: 'PostView',
+  name: 'QuoteView',
     data(){
         const auth = getAuth();
         const user = auth.currentUser
-        const storage = getStorage();
 
         return{
-            posts:[],
-            savedposts:[],
-            post:{},
-            savedpost:{},
+            quotes:[],
+            savedquotes:[],
+            quote:{},
+            savedquote:{},
             user,
-            storage,
         }
     },
     created(){
@@ -64,70 +60,59 @@ export default {
 
     methods:{
         async fetchdata  () {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    let libposts = []
+        const querySnapshot = await getDocs(collection(db, "quotes"));
+    let libquotes = []
 querySnapshot.forEach((doc) => {
-  const post = {
+  const quote = {
     id: doc.id,
-    title: doc.data().title,
+    quote: doc.data().quote,
     descr: doc.data().descr,
-    img: doc.data().img,
     author: doc.data().author,
+    quoteauthor: doc.data().quoteauthor,
     UserId: doc.data().UserId,
-    imgId: doc.data().imgId,
     timestamp: doc.data().timestamp
   }
-  libposts.push(post)
+  libquotes.push(quote)
 });
-const querySnapshots = await getDocs(collection(db, "savedPosts"));
-let libsavedposts = []
+const querySnapshots = await getDocs(collection(db, "savedQuotes"));
+let libsavedquotes = []
 querySnapshots.forEach((doc) => {
-  const savedpost ={
+  const savedquote ={
     id: doc.id,
     docId: doc.data().docId,
     UserId: doc.data().UserId,
     timestamp: doc.data().timestamp
   }
-  libsavedposts.push(savedpost)
+  libsavedquotes.push(savedquote)
 });
-this.savedposts = libsavedposts
-this.posts = libposts
+this.savedquotes = libsavedquotes
+this.quotes = libquotes
 this.id = this.$route.params.id;
-this.post = this.posts.find((post) => post.id == this.id)
-this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.post.id && savedpost.UserId == this.user.uid)
+this.quote = this.quotes.find((quote) => quote.id == this.id)
+this.savedquote = this.savedquotes.find((savedquote) => savedquote.docId == this.quote.id && savedquote.UserId == this.user.uid)
 },
 
         sureDeletePost(){
             document.getElementById('suredelete').classList.add('sure-delete-display');
-            console.log(this.post.imgId);
         },
         canceldelete(){
             document.getElementById('suredelete').classList.remove('sure-delete-display');
         },
         async deletePost (){
-            const desertRef = ref(this.storage,'posts/' +  this.post.imgId + '/post.jpg');
-                // Delete the file
-                deleteObject(desertRef).then(() => {
-                // File deleted successfully
-                deleteDoc(doc(db, "posts", this.post.id))
+        deleteDoc(doc(db, "quotes", this.quote.id))
             .then(() => {
-
-                console.log("Document successfully deleted!");
-                }).catch(function(error) {
-                console.error("Error removing document: ", error);
-                });
-                console.log('Successfully');
-                router.push('/')
-                deleteDoc(doc(db, "savedPosts", this.savedpost.id));
-                }).catch((error) => {
-                console.log(error);
-                });
+            console.log("Document successfully deleted!");
+            router.push('/quotes')
+            deleteDoc(doc(db, "savedQuotes", this.savedquote.id));
+            }).catch(function(error) {
+            console.error("Error removing document: ", error);
+            });
 
         },
         async savePost(){
             try {
-        const docRef = await addDoc(collection(db, "savedPosts"), {
-            docId: this.post.id,
+        const docRef = await addDoc(collection(db, "savedQuotes"), {
+            docId: this.quote.id,
             UserId: this.user.uid,
             timestamp: -(+new Date())
         });
@@ -139,7 +124,7 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
 
         },
          deleteFromSaved(){
-            deleteDoc(doc(db, "savedPosts", this.savedpost.id));
+            deleteDoc(doc(db, "savedQuotes", this.savedquote.id));
             this.fetchdata();
         },
 
@@ -156,8 +141,6 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
     }
 
 }
-
-
 
 </script>
 <style lang="scss" scoped>
@@ -181,10 +164,15 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
     }
     .post-leftside-image{
         margin: 0 25px;
-        width: 488px;
-        img{
-            border-radius: 16px;
-            width: 100%;
+        width: 400px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        p{
+            text-align: center;
         }
     }
     .hrefs-wrap{
@@ -195,9 +183,6 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
     }
     .post-rightside-text{
         margin: 0 25px;
-        p{
-            max-width: 340px;
-        }
     }
     .material-symbols-outlined {
     font-size: 36px;
@@ -291,14 +276,14 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
   @media screen and (max-width: 575px){
     .post-leftside-image{
         margin: 0 25px;
-        width: 100%;
+        width: 60%;
     }
     .post-rightside-text{
         margin-top: 35px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        width: 75%;
+        width: 60%;
     }
   }
 

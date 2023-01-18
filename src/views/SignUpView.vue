@@ -157,7 +157,7 @@ onMounted(() =>{
             text-transform: none;
         }
         a:hover{
-             color: #FFF;
+             color: black;
         }
         .login-descr{
             font-weight: 200;

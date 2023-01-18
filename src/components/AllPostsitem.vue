@@ -10,7 +10,7 @@
         </div>
     </div>
 </template>
-<script >
+<script>
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
@@ -48,19 +48,6 @@ querySnapshot.forEach((doc) => {
   }
   libposts.push(post)
 });
-const querySnapshots = await getDocs(collection(db, "savedPosts"));
-let libsavedposts = []
-querySnapshots.forEach((doc) => {
-  const savedpost ={
-    id: doc.id,
-    docId: doc.data().docId,
-    UserId: doc.data().UserId,
-    timestamp: doc.data().timestamp
-  }
-  libsavedposts.push(savedpost)
-});
-
-    this.savedposts = libsavedposts
     this.posts = libposts
 }
     },

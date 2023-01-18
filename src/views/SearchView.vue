@@ -1,14 +1,20 @@
 <template>
     <div class="browseview-wrapper container ">
-      <input class="form-control search animate__animated animate__fadeIn" v-model="search" type="search" placeholder="Search by Title or Descriptions">
+      <input class="form-control search animate__animated animate__fadeIn" v-model="search" type="search" placeholder="Search Images or Quotes by Title or Descriptions">
       <div class="posts-list-wrapper animate__animated animate__fadeIn animate__delay-1s ">
         <router-link v-bind:key="post.id"
           :posts="posts"
           :to="{name: 'PostView', params: {id : post.id}}"
-         v-for="post in filteredItems" class="post-wrap">
+         v-for="post in filteredItemsPosts" class="post-wrap">
             <img :src="post.img" alt="">
           </router-link >
 
+          <router-link v-bind:key="quote.id"
+          :quotes="quotes"
+          :to="{name: 'QuoteView', params: {id : quote.id}}"
+         v-for="quote in filteredItemsQuotes" class="quote-wrap">
+           <p class="quote">{{quote.quote}}</p>
+          </router-link>
     </div>
     </div>
 </template>
@@ -23,13 +29,19 @@ export default {
       return{
         search: '',
         posts:[],
+        quotes:[]
       }
     },
     computed:{
-      filteredItems(){
+      filteredItemsPosts(){
             return this.posts.filter(post =>{
                 return post.title.toLowerCase().includes(this.search) || post.title.toUpperCase().includes(this.search) || post.title.includes(this.search) || post.descr.toLowerCase().includes(this.search) || post.descr.toUpperCase().includes(this.search) || post.descr.includes(this.search)
             })
+        },
+        filteredItemsQuotes(){
+            return this.quotes.filter(quote =>{
+               return quote.quote.toLowerCase().includes(this.search) || quote.quote.toUpperCase().includes(this.search) || quote.quote.includes(this.search) || quote.descr.toLowerCase().includes(this.search) || quote.descr.toUpperCase().includes(this.search) || quote.descr.includes(this.search)
+           })
         }
 
       },
@@ -53,6 +65,20 @@ querySnapshot.forEach((doc) => {
   }
   libposts.push(post)
     });
+    const querySnapshots = await getDocs(query(collection(db, "quotes"),orderBy('timestamp')));
+    let libquotes = []
+    querySnapshots.forEach((doc) => {
+  const quote = {
+    id: doc.id,
+    quote: doc.data().quote,
+    descr: doc.data().descr,
+    author: doc.data().author,
+    quoteauthor: doc.data().quoteauthor,
+    UserId: doc.data().UserId,
+    timestamp: doc.data().timestamp
+  }
+  libquotes.push(quote)
+});
     // const querySnapshotss = await getDocs(query(collection(db, "users")));
     // let libusers = []
     // querySnapshotss.forEach((doc) => {
@@ -65,6 +91,7 @@ querySnapshot.forEach((doc) => {
     // }
     // libusers.push(users)
     // });
+    this.quotes = libquotes
     this.posts = libposts
     // this.users = libusers
     // this.userdata = this.users.filter(user => user.id == this.user.uid)
@@ -82,6 +109,31 @@ querySnapshot.forEach((doc) => {
         justify-content: center;
     }
 
+        .quote-wrap{
+        color:black;
+        text-decoration: none;
+        margin: 10px;
+        padding: 6px 20px;
+        width: 22%;
+        min-height: 400px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        background-color: rgb(253, 253, 253);
+        .quote{
+          width: 75%;
+          text-align: center;
+        }
+        .quote:hover{
+          color: #8409F9;
+        }
+      }
+
+
     .browseview-wrapper{
         margin-top: 50px;
     }
@@ -98,11 +150,27 @@ querySnapshot.forEach((doc) => {
         justify-content: center;
 
         img{
-            width: 75%;
+            width: 85%;
             border-radius: 20px;
 
         }
     }
+    @media screen and (max-width: 1190px){
+        .quote-wrap{
+        width: 30%;
+    }
+  }
+  @media screen and (max-width: 930px){
+        .quote-wrap{
+        width: 43%;
+    }
+  }
+  @media screen and (max-width: 600px){
+        .quote-wrap{
+        width: 90%;
+        min-height: 250px;
+    }
+  }
     @media screen and (max-width: 1028px){
         .post-wrap{
         width: 22%;
