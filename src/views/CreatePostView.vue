@@ -52,7 +52,8 @@ const CreatePostSubmit = async () => {
         UserId: user.uid,
         img: url,
         imgId: postId,
-        timestamp: -(+new Date())
+        timestamp: -(+new Date()),
+        type: 'image'
         });
         console.log("Document written with ID: ", docRef.id);
         router.push("/")

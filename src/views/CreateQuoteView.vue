@@ -28,16 +28,17 @@ const CreatePostSubmit = async () => {
     const user = auth.currentUser;
 
             try {
-        const docRef = await addDoc(collection(db, "quotes"), {
-            quote: Postquotequote.value,
+        const docRef = await addDoc(collection(db, "posts"), {
+            title: Postquotequote.value,
             descr: Postquotedescr.value,
             author: user.displayName,
             quoteauthor: Postquoteauthor.value,
             UserId: user.uid,
-            timestamp: -(+new Date())
+            timestamp: -(+new Date()),
+            type: 'quote'
         });
         console.log("Document written with ID: ", docRef.id);
-        router.push("/quotes")
+        router.push("/")
         } catch (e) {
         console.error("Error adding document: ", e);
         }

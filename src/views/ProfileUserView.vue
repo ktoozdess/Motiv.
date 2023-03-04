@@ -4,16 +4,12 @@
             <img referrerpolicy="no-referrer" class="user-photo-profile" :src="userr.profilePhoto" alt="userLogo" />
             <div class="profile-txt-info">
                 <h3>{{userr.username}}</h3>
-                <p>{{user.email}}</p>
                 <p>{{ userr.bio }}</p>
             </div>
-            <router-link class="btn btn-secondary" to="/updateprofile">Update profile</router-link>
+            <router-link class="btn btn-secondary" to="/">Subscribe</router-link>
         </div>
         <div class="my-posts-wrapper animate__animated animate__fadeIn animate__delay-1s" >
-            <div class="created-saved-links">
-               <h4><a class="nav-link" type="button" @click="hrefCreatedPosts">My Posts</a></h4>
-               <h4><a class="nav-link" type="button" @click="hrefSavedPosts">Saved Posts <h6>count: {{ countsavedposts }}</h6></a> </h4>
-            </div>
+
             <div class="created-posts-list-wrapper animate__animated animate__fadeIn">
           <router-link v-bind:key="post.id"
           :posts="posts"
@@ -25,54 +21,30 @@
             </div>
           </router-link >
         </div>
-
-        <div class="saved-posts-list-wrapper animate__animated animate__fadeIn">
-          <router-link v-bind:key="post.id"
-          :posts="posts"
-          :to="{name: 'PostView', params: {id : post.id}}"
-         v-for="post in postsdatasaved" class="post-wrap">
-         <img :src="post.img" alt="">
-            <div v-if="post.img == undefined" class="quote-wrap">
-                <p class="quote" >{{ post.title }}</p>
-            </div>
-          </router-link >
-        </div>
         </div>
     </div>
 </template>
 <script>
-import { getAuth } from "firebase/auth";
 import { db } from "@/firebase/firebase";
-import { collection,getDocs, query, orderBy } from "firebase/firestore";
+import { collection,getDocs } from "firebase/firestore";
 
-export default{
-    name: 'FeedView',
+
+export default {
+    name: 'ProfileUserView',
     data(){
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        let countsavedposts
 
         return{
-            posts:[],
-            users:[],
             userdata:[],
-            savedposts:[],
-            user,
-            countsavedposts,
-            postsdata:[],
-            postsdatasaved:[]
+            posts:[],
+            postsdata:[]
         }
     },
     created(){
         this.fetchdata()
     },
-    mounted(){
-        document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
-    },
     methods:{
-        async fetchdata  () {
-    const querySnapshot = await getDocs(query(collection(db, "posts"),orderBy('timestamp')));
+  async fetchdata  () {
+    const querySnapshot = await getDocs(collection(db, "posts"));
     let libposts = []
 querySnapshot.forEach((doc) => {
   const post = {
@@ -81,27 +53,14 @@ querySnapshot.forEach((doc) => {
     descr: doc.data().descr,
     img: doc.data().img,
     author: doc.data().author,
+    quoteauthor: doc.data().quoteauthor,
     UserId: doc.data().UserId,
     imgId: doc.data().imgId,
     timestamp: doc.data().timestamp
   }
   libposts.push(post)
-    });
-    const querySnapshots = await getDocs(query(collection(db, "savedPosts"), orderBy('timestamp')));
-    let libsavedposts = []
-    querySnapshots.forEach((doc) => {
-    const savedpost ={
-        id: doc.id,
-        docId: doc.data().docId,
-        UserId: doc.data().UserId,
-        timestamp: doc.data().timestamp
-    }
-    libsavedposts.push(savedpost)
-    });
-
-
-
-    const querySnapshotss = await getDocs(query(collection(db, "users")));
+});
+const querySnapshotss = await getDocs((collection(db, "users")));
     let libusers = []
     querySnapshotss.forEach((doc) => {
     const users ={
@@ -112,33 +71,25 @@ querySnapshot.forEach((doc) => {
     }
     libusers.push(users)
     });
-    this.savedposts = libsavedposts
-    this.posts = libposts
-    this.users = libusers
-    this.userdata = this.users.filter(user => user.id == this.user.uid)
-    this.postsdata = this.posts.filter(post => post.UserId == this.user.uid)
 
-        this.savedposts.map((savedpostrec) =>
+    this.users = libusers
+    this.posts = libposts
+    this.id = this.$route.params.id;
+    this.userdata = this.users.filter(user => user.id == this.id)
+    this.postsdata = this.posts.filter(post => post.UserId == this.userdata.id)
+
+    this.userdata.map((userdatadata) =>
             this.posts.forEach(post => {
-            if (this.user.uid == savedpostrec.UserId && post.id == savedpostrec.docId)
-            this.postsdatasaved.push(post)
-            this.countsavedposts = this.postsdatasaved.length
+            if (post.UserId == userdatadata.id)
+            this.postsdata.push(post)
             })
             );
-    },
-        hrefCreatedPosts(){
-            document.querySelector('.saved-posts-list-wrapper').classList.add('hidden');
-            document.querySelector('.created-posts-list-wrapper').classList.remove('hidden');
-        },
-        hrefSavedPosts(){
-            document.querySelector('.created-posts-list-wrapper').classList.add('hidden');
-            document.querySelector('.saved-posts-list-wrapper').classList.remove('hidden');
-        }
+},
+
+
     }
 
 }
-
-
 </script>
 <style scoped lang="scss">
     .hidden{

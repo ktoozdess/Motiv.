@@ -84,13 +84,13 @@ const routes = [
     }
   },
   {
-    path: '/search',
-    name: 'SearchView',
-    component: () => import(/* webpackChunkName: "about" */ '../views/SearchView.vue'),
+    path: '/profile/:id',
+    name: 'ProfileUserView',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ProfileUserView.vue'),
     meta:{
       requiresAuth: true,
     }
-  }
+  },
 ]
 
 const router = createRouter({

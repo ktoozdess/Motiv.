@@ -10,46 +10,46 @@
             <br>
             <input type="text" id="displayName" placeholder="Name" v-model="UserdisplayName" class="form-control" >
             <button class="btn btn-secondary" @click="profileUpdater">Update!</button>
+            <br>
+            <input type="text" id="displaybio" placeholder="Bio" v-model="UserBio" class="form-control" >
+            <button class="btn btn-secondary" @click="profileUpdaterBio">Update!</button>
         </div>
     </div>
 </template>
 <script setup>
 import router from "@/router";
 import { getAuth, updateProfile } from "firebase/auth";
-import { initializeApp } from "firebase/app";
 import { ref as refvue } from "vue";
-import { setDoc, doc } from "@firebase/firestore";
-import { db } from "@/firebase/firebase";
-import { getStorage, ref , uploadBytes, getDownloadURL } from "firebase/storage";
+import { doc, updateDoc } from "@firebase/firestore";
+import { db, storage } from "@/firebase/firebase";
+import { ref , uploadBytes, getDownloadURL } from "firebase/storage";
 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBXY3qNsFIavwcgjoc_AUiKgsBZKDPhKlo",
-  authDomain: "motiv-178d5.firebaseapp.com",
-  projectId: "motiv-178d5",
-  storageBucket: "motiv-178d5.appspot.com",
-  messagingSenderId: "781048548833",
-  appId: "1:781048548833:web:3383476882110c55d396a0",
-  measurementId: "G-39DWWG2MPX"
-};
-
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
 
 
 const auth = getAuth();
 const user = auth.currentUser;
 const UserdisplayName = refvue("")
+const UserBio = refvue("")
 
-
+const profileUpdaterBio = async() =>{
+    if(UserBio.value !== ''){
+        try {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                bio: UserBio.value,
+            });
+            router.push("/feed")
+        } catch (e) {
+        console.error("Error adding document: ", e);
+        }
+    }
+}
 
 const profileUpdater = async() => {
     if (UserdisplayName.value !== ''){
 
         try {
-            await setDoc(doc(db, "users", auth.currentUser.uid), {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
                 username: UserdisplayName.value,
-                profilePhoto: user.photoURL
             });
             updateProfile(auth.currentUser, {
         displayName: UserdisplayName.value
@@ -91,8 +91,7 @@ getDownloadURL(ref(storage, 'users/' + user.uid + '/profile.jpg'))
 .then(async(url) => {
     // `url` is the download URL for 'images/stars.jpg'
         try {
-            await setDoc(doc(db, "users", auth.currentUser.uid), {
-                username: user.displayName,
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
                 profilePhoto: url
             });
         } catch (e) {

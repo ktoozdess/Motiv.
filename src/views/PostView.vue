@@ -8,9 +8,11 @@
         <div class="post">
             <div class="post-leftside-image animate__animated animate__fadeIn animate__delay-1s">
                 <img :src="post.img" alt="">
+                <p v-if="post.img == undefined">{{ post.title }}</p>
             </div>
             <div class="post-rightside-text animate__animated animate__fadeIn animate__delay-1s">
-                <div class="hrefs-wrap">
+                <div class="post-info-wrapper">
+                    <div class="hrefs-wrap">
                     <li class="nav-item dropdown dropdown-post-share">
           <a   class="nav-link dropdown-toggle"  role="button" style="margin-left: 0px;cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="material-symbols-outlined">share</span>
@@ -26,12 +28,25 @@
             </div>
         </li>
             </div>
-            <p>{{post.title}}</p>
+            <p v-if="post.img != undefined">{{post.title}}</p>
+            <p v-if="post.img == undefined">{{post.quoteauthor}}</p>
             <p>{{post.descr}}</p>
-            <!-- <p>Author: {{post.author}}</p> -->
-        </div>
+                </div>
+
+        <div class="profile-author-wrapper"
+            v-for="profile in userdata"
+            v-bind:key="profile.id"
+        >
+        <img referrerpolicy="no-referrer" class="user-photo-profile" :src="profile.profilePhoto"  alt="userLogo" />
+            <div class="profile-txt-info">
+                <p class="profile-name" >{{profile.username}}</p>
+                <p><router-link class="profile-link" v-if="profile.id !== user.uid" :to="{name: 'ProfileUserView', params: {id : profile.id}}">Go profile --></router-link></p>
+            </div>
+            <a class="btn" href="#">Subscribe</a>
         </div>
     </div>
+    </div>
+</div>
 </template>
 <script >
 import {  deleteDoc,doc } from "firebase/firestore";
@@ -54,6 +69,8 @@ export default {
             savedposts:[],
             post:{},
             savedpost:{},
+            users:[],
+            userdata:[],
             user,
             storage,
         }
@@ -73,6 +90,7 @@ querySnapshot.forEach((doc) => {
     descr: doc.data().descr,
     img: doc.data().img,
     author: doc.data().author,
+    quoteauthor: doc.data().quoteauthor,
     UserId: doc.data().UserId,
     imgId: doc.data().imgId,
     timestamp: doc.data().timestamp
@@ -90,11 +108,25 @@ querySnapshots.forEach((doc) => {
   }
   libsavedposts.push(savedpost)
 });
-this.savedposts = libsavedposts
-this.posts = libposts
-this.id = this.$route.params.id;
-this.post = this.posts.find((post) => post.id == this.id)
-this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.post.id && savedpost.UserId == this.user.uid)
+const querySnapshotss = await getDocs((collection(db, "users")));
+    let libusers = []
+    querySnapshotss.forEach((doc) => {
+    const users ={
+        id: doc.id,
+        username: doc.data().username,
+        profilePhoto: doc.data().profilePhoto,
+        bio: doc.data().bio,
+    }
+    libusers.push(users)
+    });
+
+    this.users = libusers
+    this.savedposts = libsavedposts
+    this.posts = libposts
+    this.id = this.$route.params.id;
+    this.post = this.posts.find((post) => post.id == this.id)
+    this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.post.id && savedpost.UserId == this.user.uid)
+    this.userdata = this.users.filter(user => user.id == this.post.UserId)
 },
 
         sureDeletePost(){
@@ -149,9 +181,6 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
         copyLink() {
             navigator.clipboard.writeText(window.location.href);
         }
-        // facebookClick(){
-        //     window.location='https://www.facebook.com/dialog/share?app_id=145634995501895&display=page&href=' + window.location.href + '&redirect_uri=https%3A%2F%2Fdevelopers.facebook.com%2Ftools%2Fexplorer';
-        // }
 
     }
 
@@ -195,8 +224,30 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
     }
     .post-rightside-text{
         margin: 0 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         p{
             max-width: 340px;
+        }
+    }
+    .profile-author-wrapper{
+        padding: 20px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        border-radius: 20px;
+        border: 1px solid silver;
+        .profile-txt-info{
+            margin: 0px 20px;
+            p{
+                margin: 0px;
+            }
+        }
+        img{
+
         }
     }
     .material-symbols-outlined {
@@ -261,6 +312,7 @@ this.savedpost = this.savedposts.find((savedpost) => savedpost.docId == this.pos
     z-index: 1000;
     position:absolute;
 }
+
 @media screen and (max-width: 1028px){
     .post-leftside-image{
         margin: 0 25px;
